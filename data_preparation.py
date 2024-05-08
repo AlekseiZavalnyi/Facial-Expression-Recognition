@@ -1,12 +1,12 @@
-from data.data_aug import FaceAugmentation
-from data.dataset import Dataset
+from data_processing.data_aug import FaceAugmentation
+from data_processing.dataset import Dataset
 import dlib
 import torch
 import os
 
 if __name__ == '__main__':
     class_names = ['anger', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
-    path_to_dataset = 'path/to/unprepared_dataset'
+    path_to_dataset = 'path/to/unprocessed/dataset'
     path_to_write_dataset = None
     face_detector = dlib.get_frontal_face_detector()
     landmarks_predictor = dlib.shape_predictor('path/to/predictor')
@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
     write_dataset = False
     if write_dataset:
-        path_to_write_dataset = 'path/to/write/augmented/dataset'
+        path_to_write_dataset = 'path/to/write/processed/dataset'
 
     ds = Dataset(path_to_dataset, class_names, transform=None, n_dim=3)
     ds.load_and_preprocess(fa)
