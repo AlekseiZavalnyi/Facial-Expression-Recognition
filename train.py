@@ -1,5 +1,3 @@
-import torch
-import torch.nn as nn
 from torchvision.transforms import v2
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
@@ -13,7 +11,7 @@ from training_statistics import TrainingDataCollector, TrainingDataPlotter
 def train(model, optimizer, scheduler, criterion, train_dataloader, test_dataloader, n_epoch=10, device='cpu'):
     history_lr = []
     tdc = TrainingDataCollector()
-    for epoch in range(1, n_epoch+1):
+    for epoch in range(1, n_epoch + 1):
         train_loss = []
         train_acc = []
         val_loss = []
@@ -47,48 +45,46 @@ def train(model, optimizer, scheduler, criterion, train_dataloader, test_dataloa
         tl, ta = np.mean(train_loss), np.mean(train_acc)
         vl, va = np.mean(val_loss), np.mean(val_acc)
         tdc.update_statistics(tl, ta, vl, va)
-        print(f'{epoch=}')
+        print(f'\n{epoch=}')
         print(f'TRAIN: loss={tl:.6f}, acc={ta:.6f}')
         print(f' TEST: loss={vl:.6f}, acc={va:.6f}')
 
     return tdc, history_lr
+
 
 if __name__ == "__main__":
     classes = ['anger', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = get_mynet_model()
     model = model.to(device)
-    path_to_dataset = 'path/to/augmented/dataset'
+    path_to_train_dataset = 'path/to/preprocessed/train/dataset'
+    path_to_test_dataset = 'path/to/preprocessed/test/dataset'
     EPOCHS = 30
-    train_transform = v2.Compose([
+    train_transform = v2.Compose([v2.Resize((64, 64)),
                                   v2.Grayscale(1),
                                   v2.RandomHorizontalFlip(p=0.2),
+                                  v2.ToImage(),
                                   v2.ToDtype(torch.float32, scale=True),
-                                  v2.Normalize(mean=(0.4809,), std=(0.2066,)
-                                 ])
+                                  v2.Normalize(mean=(0.4809,), std=(0.2066,))])
 
-    val_transform = v2.Compose([
+    val_transform = v2.Compose([v2.Resize((64, 64)),
                                 v2.Grayscale(1),
+                                v2.ToImage(),
                                 v2.ToDtype(torch.float32, scale=True),
-                                v2.Normalize(mean=(0.4809,), std=(0.2066,)
-                               ])
+                                v2.Normalize(mean=(0.4809,), std=(0.2066,))])
 
-    train_ds = ImageFolder(path_to_dataset, transform=train_transform)
-    val_ds = ImageFolder(path_to_dataset, transform=val_transform)
+    train_ds = ImageFolder(path_to_train_dataset, transform=train_transform)
+    val_ds = ImageFolder(path_to_test_dataset, transform=val_transform)
 
     train_dataloader = DataLoader(train_ds, batch_size=8, shuffle=True, drop_last=True)
     test_dataloader = DataLoader(val_ds, batch_size=8, shuffle=True, drop_last=True)
 
     optimizer = torch.optim.NAdam(model.parameters(), lr=1e-4)
-    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.003, steps_per_epoch=len(train_dataloader), EPOCHS)
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.003, steps_per_epoch=len(train_dataloader),
+                                                    epochs=EPOCHS)
     criterion = nn.CrossEntropyLoss()
 
     tdc, _ = train(model, optimizer, scheduler, criterion, train_dataloader, test_dataloader, EPOCHS, device)
 
     tdp = TrainingDataPlotter(tdc)
     tdp.plot_statistics()
-
-
-
-
-
