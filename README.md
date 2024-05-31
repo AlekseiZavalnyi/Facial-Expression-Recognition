@@ -21,7 +21,7 @@ Transfer learning:
 SOTA-models:
 - [APViT](https://github.com/youqingxiaozhua/APViT)
 - [DDAMNet](https://github.com/simon20010923/DDAMFN)
-
+#
 ## Confusion matrix on test datasets
 All models were tested on RAF-DB, CK+ and MicroExpression
 
@@ -42,6 +42,7 @@ All models were tested on RAF-DB, CK+ and MicroExpression
 
 #### DDAMNet
 ![alt text](https://github.com/AlekseiZavalnyi/Facial-Expression-Recognition/blob/main/images/confm_ddamnet.png)
+#
 
 ## Test scores
 ![alt text](https://github.com/AlekseiZavalnyi/Facial-Expression-Recognition/blob/main/images/score.png)
